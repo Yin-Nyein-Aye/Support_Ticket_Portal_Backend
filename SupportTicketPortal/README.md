@@ -1,14 +1,36 @@
-# 📌 Support Ticket Portal
+# 📌 Support Ticket Portal – Backend
 
 ## 📖 Overview
 
-The Support Ticket Portal is a web-based **B2B ticket management system** designed to help organizations efficiently manage customer support requests.
+The Support Ticket Portal backend is a RESTful API built with Laravel, designed to manage support tickets in a B2B environment.
 
-It provides **role-based access** for Agents and Clients, enabling:
+It provides secure, scalable, and role-based access for managing tickets, comments, organizations, and SLA tracking.
 
-- Ticket creation & tracking
-- SLA monitoring
-- Communication through comments
+---
+
+## 📚 Documentation
+
+Detailed system documentation:
+
+* 📄 SRS Document: https://drive.google.com/<your-srs-link>
+* 📘 User Guide: https://drive.google.com/<your-user-guide-link>
+* 🧾 Technical Specification: https://drive.google.com/<your-tech-spec-link>
+
+---
+
+## 🧩 Architecture
+
+```
+[ React Frontend ]
+        ↓
+[ Laravel REST API ]
+        ↓
+[ Service Layer ]
+        ↓
+[ Repository Layer ]
+        ↓
+[ MySQL Database ]
+```
 
 ---
 
@@ -16,29 +38,36 @@ It provides **role-based access** for Agents and Clients, enabling:
 
 ### 🎫 Ticket Management
 
-- Create, update, and track tickets
-- Ticket lifecycle: Open → In Progress → Resolved → Closed
-- Assign tickets to agents
+* Ticket lifecycle: Open → In Progress → Resolved → Closed
+* Assign tickets to agents
+* Organization-based access
 
 ### 💬 Comments System
 
-- Public comments (Client + Agent)
-- Internal notes (Agent only)
-- Visibility control enforced via API
+* Public comments (Client + Agent)
+* Internal notes (Agent only)
+* Visibility controlled via API
 
 ### ⏱️ SLA Management
 
-- Pending → 24 hrs
-- Low → 24 hrs
-- Normal → 12 hrs
-- High → 6 hrs
-- Critical → 2 hrs
+| Priority | Time |
+| -------- | ---- |
+| Pending  | 24h  |
+| Low      | 24h  |
+| Normal   | 12h  |
+| High     | 6h   |
+| Critical | 2h   |
 
 **SLA Status:**
 
-- On Track
-- Due Soon
-- Overdue
+* On Track
+* Due Soon
+* Overdue
+
+### 🔍 Filtering & Search
+
+* Filter by: Organization, Status, Priority
+* Search by: Title, Status, Priority
 
 ---
 
@@ -46,72 +75,34 @@ It provides **role-based access** for Agents and Clients, enabling:
 
 ### Agent
 
-- Full access to all tickets
-- Manage organizations and users
-- Assign and update tickets
+* Full access to all tickets
+* Manage users & organizations
+* Assign and update tickets
 
 ### Client
 
-- Create tickets
-- View organization tickets
-- Add public comments
+* Create tickets
+* View organization tickets
+* Add public comments
 
 ---
 
-## 🔍 Filtering & Search
+## 🛠 Tech Stack
 
-- Filter by:
-    - Organization
-    - Status
-    - Priority
-- Search by:
-    - Title
-    - Status
-    - Priority
+* Laravel 10+
+* MySQL
+* Redis (Queue & Cache)
+* Laravel Sanctum (Authentication)
+* Spatie (Role & Permission)
+* MVC + Service Layer + Repository Pattern
 
 ---
 
-## 🧩 Architecture Diagram
+## 📡 API Base URL
 
-[ React Frontend (SPA) ]
-│
-▼
-[ REST API Layer ]
-(Laravel Backend)
-│
-▼
-[ Service Layer ]
-│
-▼
-[ Repository Layer ]
-│
-▼
-[ MySQL DB ]
-
----
-
-## 🖥 Tech Stack
-
-### Frontend
-
-- React (SPA)
-- React Router
-- Axios
-- Tailwind CSS
-- React Query
-
-### Backend
-
-- Laravel 10+
-- MVC Architecture
-- Repository Pattern
-- Service Layer
-- Laravel Sanctum (Auth)
-- Spatie (RBAC)
-
-### Database
-
-- MySQL
+```
+http://localhost:8000/api
+```
 
 ---
 
@@ -119,90 +110,162 @@ It provides **role-based access** for Agents and Clients, enabling:
 
 ### 🔐 Authentication
 
-- POST /api/login
-- POST /api/register
-- POST /api/logout
+* POST /api/login
+* POST /api/register
+* POST /api/logout
 
 ### 🏢 Organisations (Agent Only)
 
-- GET /api/organisations
-- POST /api/organisations
-- PUT /api/organisations/{id}
-- DELETE /api/organisations/{id}
+* GET /api/organisations
+* POST /api/organisations
+* PUT /api/organisations/{id}
+* DELETE /api/organisations/{id}
 
 ### 🎫 Tickets
 
-- GET /api/tickets
-- POST /api/tickets
-- PUT /api/tickets/{id}
-- DELETE /api/tickets/{id}
+* GET /api/tickets
+* POST /api/tickets
+* PUT /api/tickets/{id}
+* DELETE /api/tickets/{id}
 
 ### 💬 Comments
 
-- GET /api/tickets/{ticket_id}/comments
-- POST /api/tickets/{ticket_id}/comments
+* GET /api/tickets/{ticket_id}/comments
+* POST /api/tickets/{ticket_id}/comments
 
 ---
 
 ## 🗄 Database Design
 
-### Main Tables
+### Tables
 
-- Users
-- Tickets
-- Organizations
-- TicketComments
-- Priorities
+* Users
+* Tickets
+* Organizations
+* TicketComments
+* Priorities
 
 ### Relationships
 
-- User → belongsTo Organization
-- Organization → hasMany Users
-- Ticket → belongsTo User
-- User → hasMany Tickets
-- Ticket → belongsTo Priority
-- Priority → hasMany Ticket
-- Ticket → hasMany Comments
-- Comment → belongsTo Ticket
+* User → belongsTo Organization
+* Organization → hasMany Users
+* Ticket → belongsTo User
+* User → hasMany Tickets
+* Ticket → belongsTo Priority
+* Ticket → hasMany Comments
 
 ---
 
 ## 🔐 Security
 
-- Laravel Sanctum (Token-based auth)
-- Role-based authorization (Spatie)
-- Password hashing (bcrypt)
+* Laravel Sanctum (Token-based authentication)
+* Role-based authorization (Spatie)
+* Password hashing (bcrypt)
 
 ---
 
-## 🚀 Deployment
+## ⚙️ Setup Options
 
-### Development
+You can run this project in two ways:
 
-- Frontend: Vite
-- Backend: Laravel
+### 🐳 Option 1: Docker (Recommended)
 
-### Production
+#### 🚀 Start Project
 
-- Frontend: Vercel / Netlify
-- Backend: Nginx / Apache
-- Database: MySQL
+```bash
+git clone https://github.com/Yin-Nyein-Aye/Support_Ticket_Portal_Backend
+cd SupportTicketPortal
+cp .env.example .env
+docker-compose up -d --build
+```
+
+#### 🛠 Setup
+
+```bash
+docker exec -it support_ticket_portal_app composer install
+docker exec -it support_ticket_portal_app php artisan migrate --seed
+```
+
+#### 🌐 Access
+
+```
+http://localhost:8000
+```
 
 ---
 
-## 🔐 Middleware & Access Control
+### 🛠 Option 2: Manual Setup
 
-- auth:sanctum → Auth required
-- role:agent → Agent only
-- role:client|agent → Both roles
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+```
+
+---
+
+## ⚙️ Environment Configuration
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+CACHE_STORE=redis
+QUEUE_CONNECTION=redis
+REDIS_HOST=redis
+```
+
+---
+
+## 🔧 Background Services
+
+* Queue Worker (Redis)
+* Scheduler (runs every minute)
+
+---
+
+## 🐳 Docker Services
+
+* app (Laravel PHP-FPM)
+* nginx (web server)
+* mysql (database)
+* redis (cache & queue)
+* queue (job worker)
+* scheduler (cron jobs)
+
+---
+
+## 🔧 Useful Commands
+
+```bash
+docker-compose down
+docker-compose up -d
+docker ps
+docker exec -it support_ticket_portal_app bash
+docker exec -it support_ticket_portal_app php artisan <command>
+```
+
+---
+
+## ⚠️ Notes
+
+* Do NOT use `php artisan serve` when using Docker
+* Ensure ports 8000, 3306, 6379 are available
+* For 504 errors → check containers with `docker ps`
 
 ---
 
 ## 📌 Assumptions
 
-- Each user belongs to one organization
-- SLA depends on ticket priority
-- Agents manage ticket lifecycle
+* Each user belongs to one organization
+* SLA depends on ticket priority
+* Agents manage ticket lifecycle
 
 ---
 
@@ -212,45 +275,29 @@ It provides **role-based access** for Agents and Clients, enabling:
 
 ### ✅ Implemented
 
-- Roles & authentication
-- Ticket lifecycle & SLA
-- Client & agent views
-- CRUD for tickets & comments
-- Partial filter
-
-## ⚖️ Trade-offs
-
-Due to time constraints (~8 hours), the following decisions were made:
-
-- Used simple search instead of full-text search to reduce complexity
-- Limited automated testing coverage to focus on core features
-- Chose REST API over GraphQL for simplicity and familiarity
-
-### Future Improvements
-
-- Add full-text search (MySQL / Elasticsearch)
-- Improve test coverage (Feature & Unit tests)
-- Add real-time updates (WebSockets)
+* Authentication & roles
+* Ticket lifecycle & SLA
+* Comments system
+* Filtering & search
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚖️ Trade-offs
 
-### Backend
+* REST API instead of GraphQL (simplicity)
+* Basic search instead of full-text search
+* Limited test coverage
 
-```bash
-composer install
-php artisan migrate --seed
-php artisan serve
-```
+---
 
-### Frontend
+## 🚀 Future Improvements
 
-```bash
-npm install
-npm run dev
-```
+* Full-text search (Elasticsearch)
+* Real-time updates (WebSockets)
+* Improved test coverage
 
-🌐 Access
-Frontend: http://localhost:5173
-Backend: http://localhost:8000/api
+---
+
+## 🔗 Frontend Repository
+
+👉 https://github.com/https://github.com/Yin-Nyein-Aye/Support_Ticket_Portal_Frontend
