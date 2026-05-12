@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             // Foreign key to users table
             $table->foreignId('user_id')
-                  ->constrained('users')
-                  ->cascadeOnDelete();
+                ->constrained('users')
+                ->cascadeOnDelete();
 
             $table->string('token_hash', 255)->unique();
 

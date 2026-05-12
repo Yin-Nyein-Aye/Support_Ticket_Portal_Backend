@@ -4,26 +4,21 @@ namespace App\Http\Services;
 
 use App\Http\Contracts\AuthInterface;
 use App\Http\Repositories\AuthRepository;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use App\Models\User;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Redis;
-use Illuminate\Http\JsonResponse;
-
-
-use Exception;
 use App\Jobs\SendEmailVerificationJob;
+use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
-
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 
 class AuthService implements AuthInterface
 {
     public function __construct(
         private AuthRepository $authRepository
     ) {}
-
 
     public function register(array $data): array
     {
@@ -33,52 +28,51 @@ class AuthService implements AuthInterface
             throw new \Exception('Email is already registered.');
         }
         // Create avatar initials
-        $avatar = strtoupper(substr($data['first_name'], 0, 1) . substr($data['last_name'], 0, 1));
+        $avatar = strtoupper(substr($data['first_name'], 0, 1).substr($data['last_name'], 0, 1));
 
         // Create user
         $user = $this->authRepository->createUser([
             'organisation_id' => $data['organisation_id'] ?? null,
-            'first_name'      => $data['first_name'],
-            'middle_name'     => $data['middle_name'] ?? null,
-            'last_name'       => $data['last_name'],
+            'first_name' => $data['first_name'],
+            'middle_name' => $data['middle_name'] ?? null,
+            'last_name' => $data['last_name'],
             'avatar_initials' => $avatar,
-            'email'           => $data['email'],
-            'password'        => Hash::make($data['password']),
-            'is_active'       => true,
-            'is_confirm'      => false,
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'is_active' => true,
+            'is_confirm' => false,
         ]);
 
         // Generate 6-digit OTP
         $otp = rand(100000, 999999);
 
         // Store OTP in Redis (DB 1, expires in 5 minutes)
-        Cache::store('redis')->put('otp_' . $user->email, $otp, 300);
+        Cache::store('redis')->put('otp_'.$user->email, $otp, 300);
         // Dispatch email verification job
         SendEmailVerificationJob::dispatch($user->email, $otp);
 
         return [
             'user' => $user,
-            'message' => 'OTP sent to email'
+            'message' => 'OTP sent to email',
         ];
     }
-
 
     public function login(string $email, string $password): array
     {
         $user = $this->authRepository->findByEmail($email);
 
         // Handle invalid credentials
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (! $user || ! Hash::check($password, $user->password)) {
             throw new AuthenticationException('Invalid email or password.');
         }
 
         // Handle unverified email
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             throw new AuthenticationException('Please verify your email before logging in.');
         }
 
         // Handle inactive users
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             throw new AuthenticationException('Your account is inactive. Contact admin.');
         }
 
@@ -88,19 +82,19 @@ class AuthService implements AuthInterface
     public function verifyOtp(string $email, string $otp): array
     {
         // Get OTP from Redis
-        $cachedOtp = Cache::store('redis')->get('otp_' . $email);
+        $cachedOtp = Cache::store('redis')->get('otp_'.$email);
 
-        if (!$cachedOtp || $cachedOtp != $otp) {
+        if (! $cachedOtp || $cachedOtp != $otp) {
             throw new AuthenticationException('Invalid or expired OTP');
         }
 
         // Remove OTP after success
-        Cache::store('redis')->forget('otp:' . $email);
+        Cache::store('redis')->forget('otp:'.$email);
 
         // Get user
         $user = $this->authRepository->findByEmail($email);
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found.');
         }
 
@@ -113,18 +107,17 @@ class AuthService implements AuthInterface
         return $this->generateAuthPayload($user);
     }
 
-
     public function resendOtp(string $email): JsonResponse
     {
         // Check if email exists in DB
-        if (!User::where('email', $email)->exists()) {
+        if (! User::where('email', $email)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email does not exist'
+                'message' => 'Email does not exist',
             ], 404);
         }
 
-        $attemptKey = 'otp_attempt_' . $email;
+        $attemptKey = 'otp_attempt_'.$email;
 
         // Get current attempts
         $attempts = Redis::get($attemptKey) ?? 0;
@@ -140,8 +133,8 @@ class AuthService implements AuthInterface
                 'message' => 'Too many OTP requests. Try again later.',
                 'retry_after' => [
                     'minutes' => $minutes,
-                    'seconds' => $seconds
-                ]
+                    'seconds' => $seconds,
+                ],
             ], 429);
         }
 
@@ -150,14 +143,14 @@ class AuthService implements AuthInterface
 
         // Generate OTP
         $otp = rand(100000, 999999);
-        Redis::setex('otp_' . $email, 5 * 60, $otp); // 5 minutes
+        Redis::setex('otp_'.$email, 5 * 60, $otp); // 5 minutes
 
         // Dispatch email
         SendEmailVerificationJob::dispatch($email, $otp);
 
         return response()->json([
             'success' => true,
-            'message' => 'OTP sent successfully'
+            'message' => 'OTP sent successfully',
         ]);
     }
 
@@ -165,7 +158,7 @@ class AuthService implements AuthInterface
     {
         $user = $this->authRepository->findByRefreshToken($refreshToken);
 
-        if (!$user) {
+        if (! $user) {
             $this->throwAuthException('Invalid refresh token');
         }
 
@@ -180,7 +173,7 @@ class AuthService implements AuthInterface
         $this->authRepository->updateRefreshToken($user, null);
     }
 
-   // Helper to generate auth payload with optional refresh token rotation
+    // Helper to generate auth payload with optional refresh token rotation
     private function generateAuthPayload(User $user, bool $rotateRefreshToken = true): array
     {
         $accessToken = $user->createToken('access_token')->plainTextToken;
@@ -190,11 +183,11 @@ class AuthService implements AuthInterface
             : $user->refresh_token;
 
         return [
-            'user'          => $user,
-            'access_token'  => $accessToken,
+            'user' => $user,
+            'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
-            'token_type'    => 'Bearer',
-            'expires_in'    => 3600,
+            'token_type' => 'Bearer',
+            'expires_in' => 3600,
         ];
     }
 
@@ -221,24 +214,25 @@ class AuthService implements AuthInterface
     public function sendResetOtp(string $email): void
     {
         $otp = rand(100000, 999999);
-        Cache::store('redis')->put('reset_otp_' . $email, $otp, 300); // 5 mins
+        Cache::store('redis')->put('reset_otp_'.$email, $otp, 300); // 5 mins
         SendEmailVerificationJob::dispatch($email, $otp); // reuse existing job
     }
 
     public function verifyResetOtp(string $email, string $otp): bool
     {
-        $cachedOtp = Cache::store('redis')->get('reset_otp_' . $email);
+        $cachedOtp = Cache::store('redis')->get('reset_otp_'.$email);
+
         return $cachedOtp && $cachedOtp == $otp;
     }
 
     public function resetPassword(string $email, string $otp, string $newPassword): void
     {
-        if (!$this->verifyResetOtp($email, $otp)) {
+        if (! $this->verifyResetOtp($email, $otp)) {
             throw new \Exception('Invalid or expired OTP');
         }
 
         $user = $this->authRepository->findByEmail($email);
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found');
         }
 
@@ -246,6 +240,6 @@ class AuthService implements AuthInterface
         $user->save();
 
         // Remove OTP after successful reset
-        Cache::store('redis')->forget('reset_otp_' . $email);
+        Cache::store('redis')->forget('reset_otp_'.$email);
     }
 }

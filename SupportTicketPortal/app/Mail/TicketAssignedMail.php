@@ -3,8 +3,8 @@
 namespace App\Mail;
 
 use App\Models\Ticket;
-use Illuminate\Mail\Mailable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
 class TicketAssignedMail extends Mailable
@@ -21,7 +21,7 @@ class TicketAssignedMail extends Mailable
     public function build()
     {
         return $this->subject('Your ticket has been assigned')
-                    ->view('emails.ticket_assigned')
-                    ->with(['ticket' => $this->ticket]);
+            ->view('emails.ticket_assigned')
+            ->with(['ticket' => $this->ticket]);
     }
 }

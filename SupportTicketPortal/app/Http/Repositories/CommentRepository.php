@@ -2,10 +2,9 @@
 
 namespace App\Http\Repositories;
 
-use App\Http\Repositories\BaseRepository;
 use App\Http\Contracts\CommentInterface;
+use App\Models\Ticket;
 use App\Models\TicketComment;
-
 
 class CommentRepository extends BaseRepository implements CommentInterface
 {
@@ -14,17 +13,22 @@ class CommentRepository extends BaseRepository implements CommentInterface
         parent::__construct($model);
     }
 
-    public function getByTicket($ticket_id, $user)
+    public function getByTicketId($ticket_id, $user)
     {
         $query = $this->model
-            ->with('author')
+            ->with(['author', 'replies'])
             ->where('ticket_id', $ticket_id)
-            ->oldest('created_at'); // FIFO
+            ->whereNull('parent_comment_id')
+            ->oldest('created_at');
 
-        if (!$user->hasRole('agent')) {
+        if (! $user->hasRole('agent')) {
             $query->where('visibility', 'public');
         }
 
         return $query->get();
+    }
+
+    public function getTicket($ticket_id) {
+        return Ticket::findOrFail($ticket_id);
     }
 }

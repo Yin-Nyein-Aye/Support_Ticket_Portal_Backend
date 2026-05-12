@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 
 class TicketController extends BaseController
 {
+    protected $usePolicy = true;
+
     public function __construct(TicketService $service)
     {
         parent::__construct($service, TicketResource::class);
@@ -25,9 +27,8 @@ class TicketController extends BaseController
             'keyword',
             'date_from',
             'date_to',
-            'organisation_id'
+            'organisation_id',
         ]);
-
         $query = Ticket::query()
             ->filter($filters)
             ->with(['creator', 'assignee', 'priority']);
@@ -47,7 +48,7 @@ class TicketController extends BaseController
 
         return response()->json([
             'status' => true,
-            'data' => $tickets
+            'data' => $tickets,
         ]);
     }
 
@@ -60,13 +61,13 @@ class TicketController extends BaseController
                     'string',
                     'min:5',
                     'max:255',
-                    'regex:/[a-zA-Z]/' //  must contain at least one letter
+                    'regex:/[a-zA-Z]/', //  must contain at least one letter
                 ],
                 'description' => [
                     'required',
                     'string',
                     'min:5',
-                    'regex:/[a-zA-Z]/' //  must contain at least one letter
+                    'regex:/[a-zA-Z]/', //  must contain at least one letter
                 ],
             ]);
 
@@ -77,7 +78,7 @@ class TicketController extends BaseController
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors'  => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         }
     }
@@ -92,14 +93,14 @@ class TicketController extends BaseController
                     'string',
                     'min:5',
                     'max:255',
-                    'regex:/[a-zA-Z]/'
+                    'regex:/[a-zA-Z]/',
                 ],
                 'description' => [
                     'sometimes',
                     'required',
                     'string',
                     'min:5',
-                    'regex:/[a-zA-Z]/'
+                    'regex:/[a-zA-Z]/',
                 ],
             ], [
                 'title.regex' => 'Title must contain at least one letter.',
@@ -112,11 +113,11 @@ class TicketController extends BaseController
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors'  => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], $e->getCode() ?: 400);
         }
     }
@@ -125,15 +126,16 @@ class TicketController extends BaseController
     {
         try {
             $ticket = $this->service->assignTicket($id, $request->all());
+
             return new TicketResource($ticket);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors'  => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], $e->getCode() ?: 500);
         }
     }

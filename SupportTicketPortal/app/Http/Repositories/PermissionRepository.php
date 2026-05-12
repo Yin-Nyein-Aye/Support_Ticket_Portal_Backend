@@ -2,8 +2,8 @@
 
 namespace App\Http\Repositories;
 
-use Spatie\Permission\Models\Permission;
 use App\Http\Contracts\PermissionInterface;
+use Spatie\Permission\Models\Permission;
 
 class PermissionRepository extends BaseRepository implements PermissionInterface
 {

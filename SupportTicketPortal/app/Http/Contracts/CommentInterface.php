@@ -2,9 +2,8 @@
 
 namespace App\Http\Contracts;
 
-use App\Http\Contracts\BaseInterface;
-
 interface CommentInterface extends BaseInterface
 {
-    public function getByTicket($ticket_id, $user);
+    public function getByTicketId($ticket_id, $user);
+    public function getTicket($ticket_id);
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 class TicketFilter extends BaseFilter
@@ -21,13 +22,13 @@ class TicketFilter extends BaseFilter
     public function keyword($value)
     {
         $this->query->where(function ($q) use ($value) {
-            $q->where('title', 'like', "%$value%")
-              ->orWhere('description', 'like', "%$value%")
-              ->orWhere('status', 'like', "%$value%")
-
-              ->orWhereHas('priority', function ($p) use ($value) {
-                  $p->where('name', 'like', "%$value%");
-              });
+            $q->where('id', $value)
+                ->orWhere('title', 'like', "%$value%")
+                ->orWhere('status', 'like', "%$value%")
+                ->orWhere('sla_status', 'like', "%$value%")
+                ->orWhereHas('priority', function ($p) use ($value) {
+                    $p->where('name', 'like', "%$value%");
+                });
         });
     }
 

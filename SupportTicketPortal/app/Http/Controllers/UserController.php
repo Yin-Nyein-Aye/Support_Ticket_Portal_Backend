@@ -2,35 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Http\Services\UserService;
 use App\Http\Resources\V1\UserResource;
+use App\Http\Services\UserService;
+use App\Models\User;
 
 class UserController extends BaseController
 {
     public function __construct(UserService $service)
     {
         // Pass allowed includes for User
-        parent::__construct($service, UserResource::class, ['address','roles', 'permissions']);
+        parent::__construct($service, UserResource::class, ['roles', 'permissions']);
     }
 
     public function assignRole($id)
     {
-        $user = User::findOrFail($id);
-
-        $user->syncRoles("agent");
-        $user->organisation_id = null;
-        $user->save();
+        $this->service->assignRole($id);
 
         return response()->json([
-            'message' => 'Role assigned successfully'
+            'message' => 'Role assigned successfully',
         ]);
     }
 
     public function agents()
     {
-        $users = User::role('agent')->with('roles')->get();
+        $users = $this->service->getAgents();
+
         return UserResource::collection($users);
     }
 }

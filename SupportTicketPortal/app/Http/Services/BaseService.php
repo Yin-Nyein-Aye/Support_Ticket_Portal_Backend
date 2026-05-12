@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Http\Contracts\BaseInterface;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property BaseInterface $repository
@@ -36,8 +37,8 @@ class BaseService
         return $this->repository->update($id, $data);
     }
 
-    public function delete(int $id)
+    public function delete(Model $model)
     {
-        return $this->repository->delete($id);
+        return $this->repository->delete($model);
     }
 }

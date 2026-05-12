@@ -27,7 +27,7 @@ class TicketComment extends Model
     public function replies()
     {
         return $this->hasMany(TicketComment::class, 'parent_comment_id')
-            ->with('replies'); // recursive for nested replies
+            ->with('replies');
     }
 
     // parent comment

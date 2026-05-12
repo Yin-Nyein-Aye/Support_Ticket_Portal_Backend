@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Contracts\AuthInterface;
 use App\Http\Resources\V1\AuthResource;
-use Illuminate\Http\Request;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     public function __construct(
         private AuthInterface $authService
@@ -22,6 +22,7 @@ class AuthController extends Controller
         try {
             $validated = $this->validateRegister($request);
             $this->authService->register($validated);
+            Cache::tags(['users'])->flush();
 
             return $this->successResponse(
                 'Registration successful. Please verify your email.',
@@ -31,7 +32,7 @@ class AuthController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
-                'message' => $e->errors()['email'][0] ?? 'Validation error',
+                'message' => $e->errors() ?? 'Validation error',
             ], 422);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 400);
@@ -43,7 +44,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'otp'   => 'required|digits:6',
+            'otp' => 'required|digits:6',
         ]);
 
         if ($validator->fails()) {
@@ -67,7 +68,7 @@ class AuthController extends Controller
     public function resendOtp(Request $request)
     {
         $request->validate([
-            'email' => 'required|email'
+            'email' => 'required|email',
         ]);
 
         $result = $this->authService->resendOtp($request->email);
@@ -79,13 +80,12 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $this->validateLogin($request);
-
         try {
-
             $authPayload = $this->authService->login(
                 $credentials['email'],
                 $credentials['password']
             );
+
             return $this->mapToAuthResource($authPayload, $request);
         } catch (AuthenticationException $e) {
             return $this->errorResponse($e->getMessage(), 401);
@@ -117,7 +117,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Logged out successfully'
+            'message' => 'Logged out successfully',
         ]);
     }
 
@@ -126,7 +126,7 @@ class AuthController extends Controller
     {
         return $request->validate([
             'email' => 'required|email',
-            'password' => 'required|string|min:6'
+            'password' => 'required|string|min:6',
         ]);
     }
 
@@ -135,11 +135,11 @@ class AuthController extends Controller
     {
         return $request->validate([
             'organisation_id' => 'max:100',
-            'first_name'  => 'required|string|max:100',
+            'first_name' => 'required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
-            'last_name'   => 'required|string|max:100',
-            'email'       => 'required|email|unique:users,email',
-            'password'    => [
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'password' => [
                 'required',
                 'string',
                 'min:6',
@@ -173,11 +173,11 @@ class AuthController extends Controller
     public function forgotPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|email'
+            'email' => 'required|email',
         ]);
 
         $user = $this->authService->findUserByEmail($request->email);
-        if (!$user) {
+        if (! $user) {
             return $this->errorResponse('Email does not exist', 404);
         }
 
@@ -191,10 +191,10 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'otp'   => 'required|digits:6'
+            'otp' => 'required|digits:6',
         ]);
 
-        if (!$this->authService->verifyResetOtp($request->email, $request->otp)) {
+        if (! $this->authService->verifyResetOtp($request->email, $request->otp)) {
             return $this->errorResponse('Invalid or expired OTP', 422);
         }
 
@@ -203,15 +203,35 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|digits:6',
-            'password' => ['required', 'string', 'min:6', 'confirmed']
-        ]);
-
         try {
+            $request->validate([
+                'email' => 'required|email',
+                'otp' => 'required|digits:6',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:6',
+                    'regex:/[!@#$%^&*(),.?":{}|<>]/',
+                    'confirmed',
+                ],
+            ], [
+                'email.required' => 'Email is required.',
+                'email.email' => 'Please provide a valid email address.',
+                'otp.required' => 'OTP is required.',
+                'otp.digits' => 'OTP must be exactly 6 digits.',
+                'password.required' => 'Password is required.',
+                'password.min' => 'Password must be at least 6 characters.',
+                'password.regex' => 'Password must contain at least one special character.',
+                'password.confirmed' => 'Password confirmation does not match.',
+            ]);
             $this->authService->resetPassword($request->email, $request->otp, $request->password);
+
             return $this->successResponse('Password updated successfully');
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 400);
         }
@@ -224,14 +244,14 @@ class AuthController extends Controller
         $user->role = $user->getRoleNames()[0] ?? null;
 
         // Load organisation relation
-        if (!$user->relationLoaded('organisation')) {
+        if (! $user->relationLoaded('organisation')) {
             $user->load('organisation');
         }
 
-        $user->access_token  = $data['access_token'] ?? null;
+        $user->access_token = $data['access_token'] ?? null;
         $user->refresh_token = $data['refresh_token'] ?? null;
-        $user->token_type    = $data['token_type'] ?? 'Bearer';
-        $user->expires_in    = $data['expires_in'] ?? 3600;
+        $user->token_type = $data['token_type'] ?? 'Bearer';
+        $user->expires_in = $data['expires_in'] ?? 3600;
 
         return new AuthResource($user);
     }

@@ -9,7 +9,6 @@ return [
         'guard' => 'sanctum',
     ],
 
-
     'models' => [
 
         /*

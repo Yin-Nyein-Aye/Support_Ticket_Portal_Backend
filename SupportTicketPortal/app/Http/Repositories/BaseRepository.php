@@ -2,8 +2,8 @@
 
 namespace App\Http\Repositories;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Http\Contracts\BaseInterface;
+use Illuminate\Database\Eloquent\Model;
 
 class BaseRepository implements BaseInterface
 {
@@ -16,7 +16,7 @@ class BaseRepository implements BaseInterface
 
     public function all()
     {
-        return $this->model->paginate();
+        return $this->model->latest()->paginate();
     }
 
     public function find(int $id, array $includes = [])
@@ -33,13 +33,13 @@ class BaseRepository implements BaseInterface
     {
         $record = $this->find($id);
         $record->update($data);
+
         return $record;
     }
 
-    public function delete(int $id)
+    public function delete(Model $model)
     {
-        $record = $this->find($id);
-        return $record->delete();
+        return $model->delete();
     }
 
     public function getFiltered(array $filters)

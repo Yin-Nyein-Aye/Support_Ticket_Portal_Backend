@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 // app/Events/TicketAssigned.php
 

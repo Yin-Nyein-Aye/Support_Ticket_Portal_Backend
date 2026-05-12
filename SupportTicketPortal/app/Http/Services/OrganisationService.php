@@ -2,7 +2,6 @@
 
 namespace App\Http\Services;
 
-use App\Http\Services\BaseService;
 use App\Http\Repositories\OrganisationRepository;
 use App\Models\Organisation; // ← you need this import
 
@@ -31,7 +30,7 @@ class OrganisationService extends BaseService
         // Generate unique org_code
         do {
             $randomNumber = str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT);
-            $orgCode = $prefix . $randomNumber;
+            $orgCode = $prefix.$randomNumber;
         } while (Organisation::where('org_code', $orgCode)->exists());
 
         $data['org_code'] = $orgCode;

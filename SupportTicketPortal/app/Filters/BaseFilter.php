@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -6,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 abstract class BaseFilter
 {
     protected Builder $query;
+
     protected array $filters;
 
     public function __construct(Builder $query, array $filters)
@@ -22,6 +24,7 @@ abstract class BaseFilter
                 $this->$key($value);
             }
         }
+
         return $this->query;
     }
 }

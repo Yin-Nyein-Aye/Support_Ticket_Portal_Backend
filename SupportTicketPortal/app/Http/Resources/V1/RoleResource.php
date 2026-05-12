@@ -24,7 +24,7 @@ class RoleResource extends JsonResource
                 'timestamp' => now()->toDateTimeString(),
                 'path' => $request->fullUrl(),
                 'http_method' => $request->method(),
-            ]
+            ],
         ];
     }
 }

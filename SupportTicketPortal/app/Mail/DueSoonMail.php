@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Ticket;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
 class DueSoonMail extends Mailable
@@ -26,7 +25,7 @@ class DueSoonMail extends Mailable
     public function build()
     {
         return $this->view('emails.due_soon')
-            ->subject('⚠️ SLA Due Soon – ' . $this->ticket->reference_number)
+            ->subject('⚠️ SLA Due Soon – '.$this->ticket->reference_number)
             ->with([
                 'ticket' => $this->ticket,
             ]);

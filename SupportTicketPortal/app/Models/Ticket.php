@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Filters\TicketFilter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class Ticket extends Model
 {
@@ -36,14 +35,14 @@ class Ticket extends Model
     ];
 
     protected $casts = [
-        'first_response_at'       => 'datetime',
-        'resolved_at'             => 'datetime',
-        'response_due_at'         => 'datetime',
-        'resolution_due_at'       => 'datetime',
-        'response_breached_at'    => 'datetime',
-        'resolution_breached_at'  => 'datetime',
-        'created_at'              => 'datetime',
-        'updated_at'              => 'datetime',
+        'first_response_at' => 'datetime',
+        'resolved_at' => 'datetime',
+        'response_due_at' => 'datetime',
+        'resolution_due_at' => 'datetime',
+        'response_breached_at' => 'datetime',
+        'resolution_breached_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relationships

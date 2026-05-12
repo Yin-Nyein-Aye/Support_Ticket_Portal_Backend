@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Mail\DueSoonMail;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Mail\DueSoonMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 
 class SendDueSoonEmailJob implements ShouldQueue
 {
@@ -27,7 +27,9 @@ class SendDueSoonEmailJob implements ShouldQueue
         $agents = User::role('agent')->get();
 
         foreach ($agents as $agent) {
-            if (!$agent->email) continue;
+            if (! $agent->email) {
+                continue;
+            }
 
             Mail::to($agent->email)
                 ->send(new DueSoonMail($this->ticket));

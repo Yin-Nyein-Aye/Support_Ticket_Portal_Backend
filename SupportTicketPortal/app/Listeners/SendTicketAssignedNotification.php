@@ -1,11 +1,12 @@
 <?php
+
 // app/Listeners/SendTicketAssignedNotification.php
 
 namespace App\Listeners;
 
 use App\Events\TicketAssigned;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\TicketAssignedMail;
+use Illuminate\Support\Facades\Mail;
 
 class SendTicketAssignedNotification
 {
@@ -15,7 +16,7 @@ class SendTicketAssignedNotification
 
         if ($ticket->creator && $ticket->creator->email) {
             Mail::to($ticket->creator->email)
-             ->queue(new TicketAssignedMail($ticket));
+                ->queue(new TicketAssignedMail($ticket));
         }
     }
 }

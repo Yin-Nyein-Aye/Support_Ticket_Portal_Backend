@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\RoleService;
 use App\Http\Resources\V1\RoleResource;
+use App\Http\Services\RoleService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
@@ -19,7 +19,7 @@ class RoleController extends BaseController
     {
         $request->validate([
             'name' => 'required|string|unique:roles,name',
-            'guard_name' => 'nullable|string'
+            'guard_name' => 'nullable|string',
         ]);
 
         return parent::store($request);
@@ -29,8 +29,8 @@ class RoleController extends BaseController
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|unique:roles,name,' . $id,
-            'guard_name' => 'nullable|string'
+            'name' => 'required|string|unique:roles,name,'.$id,
+            'guard_name' => 'nullable|string',
         ]);
 
         return parent::update($request, $id);
@@ -41,7 +41,7 @@ class RoleController extends BaseController
     {
         $request->validate([
             'permissions' => 'required|array',
-            'permissions.*' => 'exists:permissions,name'
+            'permissions.*' => 'exists:permissions,name',
         ]);
 
         $role = Role::findOrFail($id);
@@ -52,7 +52,7 @@ class RoleController extends BaseController
         $role->syncPermissions($request->permissions);
 
         return response()->json([
-            'message' => 'Permissions assigned successfully'
+            'message' => 'Permissions assigned successfully',
         ]);
     }
 }

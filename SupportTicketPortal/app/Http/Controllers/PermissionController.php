@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\PermissionService;
 use App\Http\Resources\V1\PermissionResource;
+use App\Http\Services\PermissionService;
 use Illuminate\Http\Request;
 
 class PermissionController extends BaseController
@@ -18,7 +18,7 @@ class PermissionController extends BaseController
     {
         $request->validate([
             'name' => 'required|string|unique:permissions,name',
-            'guard_name' => 'nullable|string'
+            'guard_name' => 'nullable|string',
         ]);
 
         return parent::store($request);
@@ -28,8 +28,8 @@ class PermissionController extends BaseController
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|unique:permissions,name,' . $id,
-            'guard_name' => 'nullable|string'
+            'name' => 'required|string|unique:permissions,name,'.$id,
+            'guard_name' => 'nullable|string',
         ]);
 
         return parent::update($request, $id);

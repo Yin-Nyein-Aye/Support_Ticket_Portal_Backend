@@ -4,17 +4,18 @@ namespace App\Jobs;
 
 use App\Mail\OtpMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 
 class SendEmailVerificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public string $email;
+
     public int $otp;
 
     /**
@@ -23,7 +24,7 @@ class SendEmailVerificationJob implements ShouldQueue
     public function __construct(string $email, int $otp)
     {
         $this->email = $email;
-        $this->otp   = $otp;
+        $this->otp = $otp;
     }
 
     /**

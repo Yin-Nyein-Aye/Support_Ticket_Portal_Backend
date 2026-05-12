@@ -202,7 +202,7 @@
 
         {{-- ── HEADER ── --}}
         <div class="header">
-            <p class="header-eyebrow">Automated alert · {{ config('app.name') }}</p>
+            <p class="header-eyebrow">Automated alert · {{ ('app.name') }}</p>
             <p class="header-title">SLA deadline approaching</p>
         </div>
 

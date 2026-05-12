@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Organisation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -35,7 +34,7 @@ class UserFactory extends Factory
             'last_name' => $last,
             'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('password'),
-            'avatar_initials' => strtoupper(substr($first, 0, 1) . substr($last, 0, 1)),
+            'avatar_initials' => strtoupper(substr($first, 0, 1).substr($last, 0, 1)),
             'is_active' => true,
             'is_confirm' => true,
             'last_login_at' => now(),

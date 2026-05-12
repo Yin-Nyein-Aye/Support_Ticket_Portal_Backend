@@ -2,8 +2,8 @@
 
 namespace App\Http\Repositories;
 
-use Spatie\Permission\Models\Role;
 use App\Http\Contracts\RoleInterface;
+use Spatie\Permission\Models\Role;
 
 class RoleRepository extends BaseRepository implements RoleInterface
 {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\V1\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommentResource extends JsonResource
@@ -10,7 +11,6 @@ class CommentResource extends JsonResource
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return array
      */
     public function toArray($request): array
     {
@@ -21,13 +21,12 @@ class CommentResource extends JsonResource
             'body' => $this->body,
             'visibility' => $this->visibility,
             'parent_comment_id' => $this->parent_comment_id,
-            'author' => $this->whenLoaded('author', function () {
-                return [
-                    'id' => $this->author->id,
-                    'name' => $this->author->name,
-                    'email' => $this->author->email,
-                ];
-            }),
+            'author' => new UserResource(
+                $this->whenLoaded('author')
+            ),
+            'replies' => CommentResource::collection(
+                $this->whenLoaded('replies')
+            ),
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
         ];

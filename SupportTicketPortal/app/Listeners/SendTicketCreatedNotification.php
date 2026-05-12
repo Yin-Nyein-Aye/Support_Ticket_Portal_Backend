@@ -1,12 +1,13 @@
 <?php
+
 // app/Listeners/SendTicketCreatedNotification.php
 
 namespace App\Listeners;
 
 use App\Events\TicketCreated;
+use App\Mail\NewTicketCreatedMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\NewTicketCreatedMail;
 
 class SendTicketCreatedNotification
 {
@@ -14,7 +15,7 @@ class SendTicketCreatedNotification
     {
         $ticket = $event->ticket;
 
-        $agents = User::whereHas('roles', fn($q) => $q->where('name', 'agent'))->get();
+        $agents = User::whereHas('roles', fn ($q) => $q->where('name', 'agent'))->get();
 
         foreach ($agents as $agent) {
             if ($agent->email) {

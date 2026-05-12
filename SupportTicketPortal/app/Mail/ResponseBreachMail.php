@@ -25,7 +25,7 @@ class ResponseBreachMail extends Mailable
     public function build()
     {
         return $this->view('emails.response_breach')
-            ->subject('🚨 SLA Breached – ' . $this->ticket->reference_number)
+            ->subject('🚨 SLA Breached – '.$this->ticket->reference_number)
             ->with([
                 'ticket' => $this->ticket,
             ]);
